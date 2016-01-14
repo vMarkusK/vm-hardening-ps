@@ -9,7 +9,7 @@ $yourvCenter = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter
 $yourFolderName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter VM Folder Name", "Folder Name", "vm") 
 
 # Connect to vCenter
-#Connect-VIServer $yourvCenter
+Connect-VIServer $yourvCenter
 
 if (!(Get-Folder -Name $yourFolderName)){
     Write-Host "Folder does Not Exist. Exiting..." -ForegroundColor Red
