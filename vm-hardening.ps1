@@ -9,9 +9,9 @@ $yourvCenter = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter
 $yourFolderName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter VM Folder Name", "Folder Name", "vm") 
 
 # Connect to vCenter
-Connect-VIServer $yourvCenter
+$trash = Connect-VIServer $yourvCenter
 
-if (!(Get-Folder -Name $yourFolderName)){
+if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
     Write-Host "Folder does Not Exist. Exiting..." -ForegroundColor Red
     }
     else{
@@ -42,7 +42,7 @@ if (!(Get-Folder -Name $yourFolderName)){
 	
 	## Apply
 	
-	ForEach ($vm in (get-folder -Name "TEST" | Get-VM )){
+	ForEach ($vm in (get-folder -Name $yourFolderName | Get-VM )){
 		$vmv = Get-VM $vm | Get-View
 		$state = $vmv.Summary.Runtime.PowerState
 		($vmv).ReconfigVM_Task($vmConfigSpec)
