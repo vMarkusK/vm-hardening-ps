@@ -1,3 +1,17 @@
+#############################################################################  
+# VM Hardening Script 
+# Written by Markus Kraus
+# Version 1.1, 02.2016  
+#  
+# https://mycloudrevolution.wordpress.com/ 
+#  
+# Changelog:  
+# 2016.02.11 ver 1.1 Base Release  
+#  
+#  
+##############################################################################  
+
+
 ## Preparation
 # Load Snapin (if not already loaded)
 if (!(Get-PSSnapin -name VMware.VimAutomation.Core -ErrorAction:SilentlyContinue)) {
@@ -22,6 +36,7 @@ if($OpenConnection.IsConnected) {
 } else {
 	Write-Host "Connecting vCenter..."
 	$VIConnection = Connect-VIServer -Server $yourvCenter
+}
 
 if (-not $VIConnection.IsConnected) {
 	Write-Error "Error: vCenter Connection Failed"
