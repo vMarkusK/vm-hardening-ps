@@ -1,16 +1,36 @@
-﻿## Preparation
-# Load SnapIn
-if (!(get-pssnapin -name VMware.VimAutomation.Core -erroraction silentlycontinue)) {
-    add-pssnapin VMware.VimAutomation.Core
+## Preparation
+# Load Snapin (if not already loaded)
+if (!(Get-PSSnapin -name VMware.VimAutomation.Core -ErrorAction:SilentlyContinue)) {
+	if (!(Add-PSSnapin -PassThru VMware.VimAutomation.Core)) {
+		# Error out if loading fails
+		write-host "`nFATAL ERROR: Cannot load the VIMAutomation Core Snapin. Is the PowerCLI installed?`n"
+		exit
+	}
 }
+
 # Inputs
 [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
 $yourvCenter = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter FQDN or IP", "vCenter", "$env:computername") 
 $yourFolderName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter VM Folder Name", "Folder Name", "vm") 
 
-# Connect to vCenter
-$trash = Connect-VIServer $yourvCenter
+# Start vCenter Connection
+Write-Host "Starting to Process vCenter Connection to " $yourvCenter " ..."-ForegroundColor Magenta
+$OpenConnection = $global:DefaultVIServers | where { $_.Name -eq $yourvCenter }
+if($OpenConnection.IsConnected) {
+	Write-Host "vCenter is Already Connected..." -ForegroundColor Yellow
+	$VIConnection = $OpenConnection
+} else {
+	Write-Host "Connecting vCenter..."
+	$VIConnection = Connect-VIServer -Server $yourvCenter
 
+if (-not $VIConnection.IsConnected) {
+	Write-Error "Error: vCenter Connection Failed"
+    Exit
+}
+# End vCenter Connection
+
+## Exection
+# Check Folder
 if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
     Write-Host "Folder does Not Exist. Exiting..." -ForegroundColor Red
     }
@@ -40,7 +60,7 @@ if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
 		$vmConfigSpec.extraconfig += $OptionValue
 	}
 	
-	## Apply
+	# Apply
 	
 	ForEach ($vm in (get-folder -Name $yourFolderName | Get-VM )){
 		$vmv = Get-VM $vm | Get-View
