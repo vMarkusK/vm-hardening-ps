@@ -45,10 +45,6 @@ if (-not $VIConnection.IsConnected) {
 }
 # End vCenter Connection
 
-# Connect to vCenter
-$trash = Connect-VIServer $yourvCenter
-
-
 ## Exection
 # Check Folder
 if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
@@ -84,9 +80,9 @@ if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
 
 
 	# Apply
-
+	Write-Host "...Starting Reconfiguring VMs"-ForegroundColor Magenta
 	ForEach ($vm in (get-folder -Name $yourFolderName | Get-VM )){
-		$vmv = Get-VM $vm | Get-View
+			$vmv = Get-VM $vm | Get-View
 		$state = $vmv.Summary.Runtime.PowerState
 		Write-Host "...Starting Reconfiguring VM: $VM "
 		$TaskConf = ($vmv).ReconfigVM_Task($vmConfigSpec)
