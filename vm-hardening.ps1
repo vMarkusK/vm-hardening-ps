@@ -28,6 +28,7 @@ if (!(Get-PSSnapin -name VMware.VimAutomation.Core -ErrorAction:SilentlyContinue
 $yourvCenter = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter FQDN or IP", "vCenter", "$env:computername") 
 $yourFolderName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter VM Folder Name", "Folder Name", "vm") 
 
+<<<<<<< HEAD
 # Start vCenter Connection
 Write-Host "Starting to Process vCenter Connection to " $yourvCenter " ..."-ForegroundColor Magenta
 $OpenConnection = $global:DefaultVIServers | where { $_.Name -eq $yourvCenter }
@@ -44,6 +45,10 @@ if (-not $VIConnection.IsConnected) {
     Exit
 }
 # End vCenter Connection
+=======
+# Connect to vCenter
+$trash = Connect-VIServer $yourvCenter
+>>>>>>> master
 
 ## Exection
 # Check Folder
@@ -78,8 +83,13 @@ if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
 		$vmConfigSpec.extraconfig += $OptionValue
 	}
 	
+<<<<<<< HEAD
 	# Apply
 	Write-Host "...Starting Reconfiguring VMs"-ForegroundColor Magenta
+=======
+	## Apply
+	
+>>>>>>> master
 	ForEach ($vm in (get-folder -Name $yourFolderName | Get-VM )){
 		$vmv = Get-VM $vm | Get-View
 		$state = $vmv.Summary.Runtime.PowerState
