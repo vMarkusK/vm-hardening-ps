@@ -1,12 +1,13 @@
 #############################################################################  
 # VM Hardening Script 
 # Written by Markus Kraus
-# Version 1.1, 02.2016  
+# Version 1.1 
 #  
 # https://mycloudrevolution.wordpress.com/ 
 #  
 # Changelog:  
-# 2016.02.11 ver 1.1 Base Release  
+# 2016.01 ver 1.0 Base Release  
+# 2016.02 ver 1.1 Added more Error Handling 
 #  
 #  
 ##############################################################################  
@@ -31,7 +32,7 @@ $yourFolderName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCen
 Write-Host "Starting to Process vCenter Connection to " $yourvCenter " ..."-ForegroundColor Magenta
 $OpenConnection = $global:DefaultVIServers | where { $_.Name -eq $yourvCenter }
 if($OpenConnection.IsConnected) {
-	Write-Host "vCenter is Already Connected..." -ForegroundColor Yellow
+	Write-Host "vCenter is Already Connected..." -ForegroundColor Blue
 	$VIConnection = $OpenConnection
 } else {
 	Write-Host "Connecting vCenter..."
@@ -65,6 +66,8 @@ if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
 		"RemoteDisplay.vnc.enabled"="false";  
 	
 	}
+	Write-Host "VM Hardening Options:"-ForegroundColor Magenta
+	$ExtraOptions | Format-Table -AutoSize
 	
 	$vmConfigSpec = New-Object VMware.Vim.VirtualMachineConfigSpec
 	
@@ -76,13 +79,16 @@ if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
 	}
 	
 	# Apply
-	
+	Write-Host "...Starting Reconfiguring VMs"-ForegroundColor Magenta
 	ForEach ($vm in (get-folder -Name $yourFolderName | Get-VM )){
 		$vmv = Get-VM $vm | Get-View
 		$state = $vmv.Summary.Runtime.PowerState
-		($vmv).ReconfigVM_Task($vmConfigSpec)
+		Write-Host "...Starting Reconfiguring VM: $VM "
+		$TaskConf = ($vmv).ReconfigVM_Task($vmConfigSpec)
 			if ($state -eq "poweredOn") {
-				$vmv.MigrateVM_Task($null, $_.Runtime.Host, 'highPriority', $null)
+				Write-Host "...Migrating VM: $VM "
+				$TaskMig = $vmv.MigrateVM_Task($null, $_.Runtime.Host, 'highPriority', $null)
 				}
 		}
+	Write-Host "Reconfiguring Completed" -ForegroundColor Green
 	}
