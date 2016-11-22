@@ -1,34 +1,36 @@
 #############################################################################  
 # VM Hardening Script 
 # Written by Markus Kraus
-# Version 1.1 
+# Version 1.2 
 #  
-# https://mycloudrevolution.wordpress.com/ 
+# http://mycloudrevolution.com/ 
 #  
 # Changelog:  
 # 2016.01 ver 1.0 Base Release  
-# 2016.02 ver 1.1 Added more Error Handling 
+# 2016.02 ver 1.1 Added more Error Handling
+# 2016.11 ver 1.2 Added regions
 #  
 #  
 ##############################################################################  
 
 
-## Preparation
-# Load Snapin (if not already loaded)
-if (!(Get-PSSnapin -name VMware.VimAutomation.Core -ErrorAction:SilentlyContinue)) {
+#region: Start Load VMware  Snapin (if not already loaded)
+if (!(Get-PSSnapin -Name VMware.VimAutomation.Core -ErrorAction SilentlyContinue)) {
 	if (!(Add-PSSnapin -PassThru VMware.VimAutomation.Core)) {
 		# Error out if loading fails
-		write-host "`nFATAL ERROR: Cannot load the VIMAutomation Core Snapin. Is the PowerCLI installed?`n"
-		exit
+		Write-Error "ERROR: Cannot load the VMware Snapin. Is the PowerCLI installed?"
+		Exit
 	}
 }
+#endregion
 
-# Inputs
+#region: Inputs
 [System.Reflection.Assembly]::LoadWithPartialName('Microsoft.VisualBasic') | Out-Null
 $yourvCenter = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter FQDN or IP", "vCenter", "$env:computername") 
 $yourFolderName = [Microsoft.VisualBasic.Interaction]::InputBox("Enter your vCenter VM Folder Name", "Folder Name", "vm") 
+#endregion
 
-# Start vCenter Connection
+#region: Start vCenter Connection
 Write-Host "Starting to Process vCenter Connection to " $yourvCenter " ..."-ForegroundColor Magenta
 $OpenConnection = $global:DefaultVIServers | where { $_.Name -eq $yourvCenter }
 if($OpenConnection.IsConnected) {
@@ -43,16 +45,16 @@ if (-not $VIConnection.IsConnected) {
 	Write-Error "Error: vCenter Connection Failed"
     Exit
 }
-# End vCenter Connection
+#endregion
 
-## Exection
-# Check Folder
+#region: Exection
+## Check Folder
 if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
     Write-Host "Folder does Not Exist. Exiting..." -ForegroundColor Red
     }
     else{
 
-	# Create Options
+	## Create Options
 	$ExtraOptions = @{
 		"isolation.tools.diskShrink.disable"="true";
 		"isolation.tools.diskWiper.disable"="true";
@@ -79,7 +81,7 @@ if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
 	}
 
 
-	# Apply
+	## Apply
 	Write-Host "...Starting Reconfiguring VMs"-ForegroundColor Magenta
 	ForEach ($vm in (get-folder -Name $yourFolderName | Get-VM )){
 			$vmv = Get-VM $vm | Get-View
@@ -93,3 +95,4 @@ if (!(Get-Folder -Name $yourFolderName -ErrorAction SilentlyContinue)){
 		}
 	Write-Host "Reconfiguring Completed" -ForegroundColor Green
 	}
+#endregion
