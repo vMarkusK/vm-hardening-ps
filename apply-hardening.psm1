@@ -21,14 +21,14 @@ function Apply-Hardening {
     ===========================================================================
 
     .DESCRIPTION
-    Applys a aet of Hardening options to your VMs
+    Applys a set of Hardening options to your VMs
 
     .Example
     Get-VM TST* | Apply-Hardening 
 
     .Example
     $SampleVMs = Get-VM "TST*"
-    Apply-Hardening -VMs $SampleVMs -Minutes 60
+    Apply-Hardening -VMs $SampleVMs
 
     .PARAMETER VMs
     Specify the VMs 
@@ -45,7 +45,6 @@ param(
                 Position=0)]
     [VMware.VimAutomation.ViCore.Impl.V1.Inventory.InventoryItemImpl[]]
     $VMs
-
 )
 
 Process { 
